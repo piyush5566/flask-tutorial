@@ -1,7 +1,7 @@
 Flaskr
 ======
 
-The basic blog app.
+The blog app.
 
 
 Install
