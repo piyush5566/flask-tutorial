@@ -13,7 +13,7 @@ Install
     $ git clone https://github.com/piyush5566/flask-tutorial.git
     $ cd flask-tutorial
 
-Create a virtualenv and activate it::
+Create a virtualenv and activate it.
 On Windows cmd::
     $ py -3 -m venv .venv
     $ .venv\Scripts\activate.bat
