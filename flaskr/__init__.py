@@ -3,10 +3,12 @@ from flask import Flask
 
 
 def create_app(test_config=None):
-    # create and configure the app
+    """Create and configure an instance of the Flask application."""
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_mapping(
+        # a default secret that should be overridden by instance config
         SECRET_KEY="dev",
+        # store the database in the instance folder
         DATABASE=os.path.join(app.instance_path, "flaskr.sqlite"),
     )
 
@@ -28,17 +30,20 @@ def create_app(test_config=None):
     def hello():
         return "Hello, World!"
 
+    # register the database commands
     from . import db
 
     db.init_app(app)
 
+    # apply the blueprints to the app
     from . import auth
-
-    app.register_blueprint(auth.bp)
-
     from . import blog
 
+    app.register_blueprint(auth.bp)
     app.register_blueprint(blog.bp)
+
+    # make url_for('index') == url_for('blog.index')
+    # for this webapp, the blog will be the main index
     app.add_url_rule("/", endpoint="index")
 
     return app
