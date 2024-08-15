@@ -1,7 +1,18 @@
-from flask import Blueprint, flash, g, redirect, render_template, request, url_for
+from flask import (
+    Blueprint,
+    flash,
+    g,
+    redirect,
+    render_template,
+    request,
+    url_for,
+)
+from flask_security import current_user
 from werkzeug.exceptions import abort
-from flaskr.auth import login_required
-from flaskr.db import User, Post, db
+
+from flask_security import auth_required
+from .db import db
+from flaskr.models import Post, User
 
 bp = Blueprint("blog", __name__)
 
@@ -41,14 +52,14 @@ def get_post(id, check_author=True):
     post = db.session.execute(post_stmt).one_or_none()
     if post is None:
         abort(404, f"Post id {id} doesn't exist.")
-    if check_author and post.author_id != g.user.id:
+    if check_author and post.author_id != current_user.id:
         abort(403)
 
     return post
 
 
 @bp.route("/create", methods=("GET", "POST"))
-@login_required
+@auth_required()
 def create():
     """Create a new post for the current user."""
     if request.method == "POST":
@@ -64,7 +75,7 @@ def create():
         else:
             db.session.execute(
                 db.insert(Post),
-                [{"title": title, "body": body, "author_id": g.user.id}],
+                [{"title": title, "body": body, "author_id": current_user.id}],
             )
             db.session.commit()
             return redirect(url_for("blog.index"))
@@ -72,7 +83,7 @@ def create():
 
 
 @bp.route("/<int:id>/update", methods=("GET", "POST"))
-@login_required
+@auth_required()
 def update(id):
     """Update a post if the current user is the author."""
     post = get_post(id)
@@ -98,7 +109,7 @@ def update(id):
 
 
 @bp.route("/<int:id>/delete", methods=("POST",))
-@login_required
+@auth_required()
 def delete(id):
     """Delete a post.
 
